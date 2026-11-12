@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: expense-tracker-api
+
+management:
+  endpoints:
+    web:
+      exposure:
+        # Only expose the health check; keep every other actuator endpoint private
+        include: health
