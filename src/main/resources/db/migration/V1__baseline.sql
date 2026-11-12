@@ -1,0 +1,3 @@
+-- Baseline migration: intentionally creates no objects.
+-- It proves Flyway runs against the database and starts the version history at V1.
+-- Real tables arrive with the modules that own them (identity, categories, expenses, ...).

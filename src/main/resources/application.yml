@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: expense-tracker-api
+
+  # Connection details come from environment variables; the "dev" profile supplies local defaults
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    # Flyway owns the schema; Hibernate only checks that entities match it
+    hibernate:
+      ddl-auto: validate
+    # Don't keep a DB session open while rendering the HTTP response
+    open-in-view: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        # Only expose the health check; keep every other actuator endpoint private
+        include: health

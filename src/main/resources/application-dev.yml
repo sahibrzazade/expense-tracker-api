@@ -1,0 +1,6 @@
+# Local development defaults; values match compose.yaml. Activate with --spring.profiles.active=dev
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/expense_tracker
+    username: expense
+    password: expense
