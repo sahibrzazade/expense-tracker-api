@@ -1,0 +1,32 @@
+# Local planning notes (never committed)
+tasks/
+
+# Secrets and local environment
+.env
+.env.*
+!.env.example
+
+# Maven build output
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Eclipse / VS Code Java
+.classpath
+.project
+.settings/
+bin/
+.vscode/
+.factorypath
+.apt_generated/
+
+# Logs and OS files
+*.log
+.DS_Store
+Thumbs.db
