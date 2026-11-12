@@ -19,7 +19,7 @@ This module ships no business endpoints.
 | Validation | Jakarta Bean Validation (`spring-boot-starter-validation`) |
 | Persistence | Spring Data JPA + PostgreSQL JDBC driver |
 | Migrations | Flyway (`flyway-core` + `flyway-database-postgresql`) |
-| Database | PostgreSQL 17, local via Podman (`compose.yaml`) |
+| Database | PostgreSQL 17, local via Docker Compose (`compose.yaml`) |
 | API docs | springdoc-openapi (version compatible with the chosen Boot release) |
 | Ops | Spring Boot Actuator (`health` only exposed) |
 | Tests | JUnit 5, AssertJ, MockMvc, Testcontainers (PostgreSQL module) |
@@ -33,8 +33,8 @@ Exact dependency versions are pinned in `pom.xml` (managed by the Spring Boot pa
 All commands run from the `backend/` directory.
 
 ```
-Start DB:     podman compose up -d
-Stop DB:      podman compose down
+Start DB:     docker compose up -d
+Stop DB:      docker compose down
 Run app:      ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
 Unit+IT test: ./mvnw test
 Full check:   ./mvnw verify          # tests + coverage gate + format check
@@ -42,13 +42,7 @@ Format:       ./mvnw spotless:apply
 Package:      ./mvnw clean package
 ```
 
-Testcontainers with Podman requires the Podman socket. One-time setup (documented in README):
-
-```
-systemctl --user enable --now podman.socket
-export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock
-export TESTCONTAINERS_RYUK_DISABLED=true
-```
+Prerequisites: JDK 25 and Docker Engine with the Compose plugin, with the user able to run `docker` without `sudo`. Testcontainers uses the same Docker daemon; no extra configuration needed.
 
 ## Project Structure
 
@@ -184,8 +178,8 @@ Foundation tests cover: health endpoint, 404 / 405 / 400 / 500 ProblemDetail sha
 
 ## Success Criteria
 
-1. From a clean clone with the Podman socket enabled, `./mvnw verify` passes.
-2. With `podman compose up -d` and the `dev` profile, the app starts and Flyway reports `V1` applied.
+1. From a clean clone with Docker running, `./mvnw verify` passes.
+2. With `docker compose up -d` and the `dev` profile, the app starts and Flyway reports `V1` applied.
 3. `GET /actuator/health` returns `200` with `"status":"UP"`.
 4. `GET /api/v1/does-not-exist` returns `404` with `Content-Type: application/problem+json` and the fields above.
 5. A validation failure returns `400` with an `errors` array containing the failing field.
@@ -193,7 +187,7 @@ Foundation tests cover: health endpoint, 404 / 405 / 400 / 500 ProblemDetail sha
 7. A CORS preflight from `http://localhost:5173` gets `Access-Control-Allow-Origin`; one from an unlisted origin does not.
 8. `GET /v3/api-docs` returns valid OpenAPI JSON; `/swagger-ui.html` loads.
 9. `./mvnw spotless:check` passes; coverage gate is active.
-10. `README.md` documents setup, commands and the Podman socket step.
+10. `README.md` documents prerequisites (JDK 25, Docker), setup and commands.
 
 ## Resolved Decisions
 
