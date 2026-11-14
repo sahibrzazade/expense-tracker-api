@@ -56,8 +56,24 @@ The base config (`application.yml`) reads environment-specific values from envir
 | `DB_URL` | JDBC URL, e.g. `jdbc:postgresql://localhost:5432/expense_tracker` |
 | `DB_USERNAME` | Database user |
 | `DB_PASSWORD` | Database password |
+| `CORS_ALLOWED_ORIGINS` | Comma-separated browser origins allowed to call `/api/**` (default: none) |
 
-The `dev` profile (`application-dev.yml`) provides local defaults matching `compose.yaml`; those credentials are for the local container only. Never commit real secrets.
+The `dev` profile (`application-dev.yml`) provides local defaults matching `compose.yaml` and allows the Vite dev server (`http://localhost:5173`); those credentials are for the local container only. Never commit real secrets.
+
+## Errors
+
+Every error response is an RFC 9457 Problem Detail (`application/problem+json`). Validation failures (400) add an `errors` array:
+
+```json
+{
+  "type": "about:blank",
+  "title": "Bad Request",
+  "status": 400,
+  "detail": "Request validation failed",
+  "instance": "/api/v1/expenses",
+  "errors": [{ "field": "amount", "message": "must be greater than 0" }]
+}
+```
 
 ## Project layout
 
@@ -79,3 +95,5 @@ Schema changes are always new Flyway scripts; never edit a migration that has al
 | Path | Description |
 |---|---|
 | `GET /actuator/health` | Health check (includes database connectivity) |
+| `GET /v3/api-docs` | OpenAPI document (the contract for the frontend) |
+| `GET /swagger-ui.html` | Swagger UI to browse and try the API |
