@@ -4,3 +4,8 @@ spring:
     url: jdbc:postgresql://localhost:5432/expense_tracker
     username: expense
     password: expense
+
+app:
+  cors:
+    # Vite dev server of the frontend repo
+    allowed-origins: http://localhost:5173
