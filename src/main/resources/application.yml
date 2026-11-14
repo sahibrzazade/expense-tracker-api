@@ -15,6 +15,15 @@ spring:
     # Don't keep a DB session open while rendering the HTTP response
     open-in-view: false
 
+app:
+  cors:
+    # Comma-separated browser origins allowed to call /api/**; empty (the default) allows none
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:}
+
+springdoc:
+  # Document only the public API, not actuator or other internal endpoints
+  paths-to-match: /api/**
+
 management:
   endpoints:
     web:
