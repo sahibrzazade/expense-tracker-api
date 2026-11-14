@@ -96,7 +96,7 @@ refresh_tokens (
 
 ## Security setup
 
-- **Dependencies (approved with this spec):** `spring-boot-starter-security`, `spring-boot-starter-oauth2-resource-server` (JWT validation and Nimbus JWT encoding), `spring-security-test` (test scope).
+- **Dependencies (approved with this spec):** `spring-boot-starter-security`, `spring-boot-starter-security-oauth2-resource-server` (JWT validation and Nimbus JWT encoding), and their `-test` starters (test scope).
 - **Stateless:** no HTTP session; CSRF protection disabled because protected endpoints use a bearer header, and the refresh cookie is `SameSite=Strict` and scoped to `/api/v1/auth`.
 - **Public endpoints:** `/api/v1/auth/**`, `/actuator/health`, `/v3/api-docs/**`, `/swagger-ui/**`, `/swagger-ui.html`. Everything else requires a valid access token.
 - **CORS** is enabled through `http.cors(...)` using the existing `CorsConfig`, now with `allowCredentials(true)`.

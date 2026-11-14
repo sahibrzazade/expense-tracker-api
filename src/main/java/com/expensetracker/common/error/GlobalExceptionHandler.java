@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -59,6 +61,17 @@ class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(ConflictException.class)
     ProblemDetail handleConflict(ConflictException ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
+    /** Missing, malformed or expired access token (forwarded here by the security entry point). */
+    @ExceptionHandler(AuthenticationException.class)
+    ProblemDetail handleAuthentication(AuthenticationException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, "Missing or invalid access token");
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    ProblemDetail handleAccessDenied(AccessDeniedException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, "Access denied");
     }
 
     /** Last resort: log the full error server-side, but never send internals to the client. */

@@ -1,6 +1,7 @@
 package com.expensetracker;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 
 import com.expensetracker.support.IntegrationTest;
 import org.junit.jupiter.api.Test;
@@ -24,7 +25,9 @@ class FoundationIntegrationTest extends IntegrationTest {
 
     @Test
     void otherActuatorEndpointsAreNotExposed() {
-        assertThat(mvc.get().uri("/actuator/info")).hasStatus(HttpStatus.NOT_FOUND);
+        // Anonymous callers are stopped by security; even an authenticated user finds nothing there
+        assertThat(mvc.get().uri("/actuator/info")).hasStatus(HttpStatus.UNAUTHORIZED);
+        assertThat(mvc.get().with(jwt()).uri("/actuator/info")).hasStatus(HttpStatus.NOT_FOUND);
     }
 
     @Test

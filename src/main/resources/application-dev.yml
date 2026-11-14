@@ -6,6 +6,9 @@ spring:
     password: expense
 
 app:
+  auth:
+    # Local-only signing key; never use it outside local development
+    jwt-secret: dev-only-jwt-secret-do-not-use-in-production
   cors:
     # Vite dev server of the frontend repo
     allowed-origins: http://localhost:5173

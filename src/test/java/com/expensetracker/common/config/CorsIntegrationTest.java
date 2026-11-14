@@ -1,6 +1,7 @@
 package com.expensetracker.common.config;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 
 import com.expensetracker.support.IntegrationTest;
 import org.junit.jupiter.api.Test;
@@ -21,7 +22,8 @@ class CorsIntegrationTest extends IntegrationTest {
                         .header(HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS, "Authorization"))
                 .hasStatusOk()
                 .headers()
-                .hasValue(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, ALLOWED_ORIGIN);
+                .hasValue(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, ALLOWED_ORIGIN)
+                .hasValue(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true");
     }
 
     @Test
@@ -37,7 +39,7 @@ class CorsIntegrationTest extends IntegrationTest {
 
     @Test
     void actualRequestFromAllowedOriginGetsAllowOriginHeader() {
-        assertThat(mvc.get().uri(PROBE).header(HttpHeaders.ORIGIN, ALLOWED_ORIGIN))
+        assertThat(mvc.get().with(jwt()).uri(PROBE).header(HttpHeaders.ORIGIN, ALLOWED_ORIGIN))
                 .hasStatusOk()
                 .headers()
                 .hasValue(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, ALLOWED_ORIGIN);
