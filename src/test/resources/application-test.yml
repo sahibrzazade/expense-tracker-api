@@ -1,4 +1,6 @@
 # Settings for integration tests (activated by IntegrationTest). The datasource comes from Testcontainers.
 app:
+  auth:
+    jwt-secret: test-only-jwt-secret-at-least-32-bytes
   cors:
     allowed-origins: http://localhost:5173
