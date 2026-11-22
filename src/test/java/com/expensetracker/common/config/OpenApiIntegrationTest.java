@@ -30,6 +30,25 @@ class OpenApiIntegrationTest extends IntegrationTest {
     }
 
     @Test
+    void apiDocsDeclareBearerAuthAsTheDefault() {
+        assertThat(mvc.get().uri("/v3/api-docs")).bodyJson().isLenientlyEqualTo("""
+                {
+                  "components": {"securitySchemes": {"bearerAuth": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"}}},
+                  "security": [{"bearerAuth": []}]
+                }
+                """);
+    }
+
+    @Test
+    void authEndpointsAreDocumentedAsPublic() {
+        assertThat(mvc.get().uri("/v3/api-docs"))
+                .bodyJson()
+                .extractingPath("$.paths['/api/v1/auth/login'].post.security")
+                .asArray()
+                .isEmpty();
+    }
+
+    @Test
     void swaggerUiIsServed() {
         assertThat(mvc.get().uri("/swagger-ui/index.html"))
                 .hasStatusOk()
