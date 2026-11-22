@@ -24,7 +24,7 @@ These apply to every module. Module specs must not contradict them without updat
 | Repositories | Two separate repos: `backend` (this one) and `frontend`. The OpenAPI document is the contract between them. |
 | API style | REST + JSON, all endpoints under `/api/v1` |
 | Errors | RFC 9457 `ProblemDetail` (`application/problem+json`) |
-| Auth | JWT access token (15 min, bearer header) + opaque refresh token (7 days, httpOnly cookie, rotated on use); BCrypt password hashing. Details in `SPEC-identity.md` |
+| Auth | JWT access token (15 min, bearer header) + opaque refresh token (7 days, httpOnly cookie, rotated on use); Argon2id password hashing. Details in `SPEC-identity.md` |
 | Data isolation | A user only sees their own data; accessing another user's resource returns `404` |
 | Currency | One currency per user (`AZN` or `USD`), chosen at registration and never changed. No exchange-rate conversion. |
 | Money | `BigDecimal` in Java, `NUMERIC(19,2)` in PostgreSQL, serialized as a JSON number with 2 decimal places; amounts must be `> 0` |

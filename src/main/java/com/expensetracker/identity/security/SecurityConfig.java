@@ -13,6 +13,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
@@ -65,6 +67,15 @@ class SecurityConfig {
                 .exceptionHandling(exceptions ->
                         exceptions.authenticationEntryPoint(unauthorized).accessDeniedHandler(forbidden));
         return http.build();
+    }
+
+    /**
+     * Argon2id with OWASP's recommended minimum: 19 MiB memory, 2 iterations, 1 thread, 16-byte random salt,
+     * 32-byte hash. Memory-hard, so brute-forcing on GPUs is expensive; no input length limit like BCrypt's 72 bytes.
+     */
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new Argon2PasswordEncoder(16, 32, 1, 19 * 1024, 2);
     }
 
     @Bean

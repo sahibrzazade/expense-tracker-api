@@ -17,7 +17,7 @@ Let a person create an account, sign in, stay signed in, and sign out, and let e
 | Refresh token transport | `httpOnly` cookie; never in a JSON body |
 | Register response | Signs the user in (returns tokens), same as login |
 | Email | Trimmed, stored lower-case, unique |
-| Password | 8–72 characters (72 is the BCrypt input limit), hashed with BCrypt |
+| Password | 8–128 characters, any characters, no composition rules (NIST SP 800-63B); hashed with Argon2id |
 
 ## API
 
@@ -79,7 +79,7 @@ users (
   id            UUID PRIMARY KEY,
   email         VARCHAR(254) NOT NULL UNIQUE,   -- stored lower-case
   name          VARCHAR(100) NOT NULL,
-  password_hash VARCHAR(100) NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
   currency      VARCHAR(3)   NOT NULL CHECK (currency IN ('AZN', 'USD')),
   created_at    TIMESTAMPTZ  NOT NULL
 )
@@ -96,13 +96,13 @@ refresh_tokens (
 
 ## Security setup
 
-- **Dependencies (approved with this spec):** `spring-boot-starter-security`, `spring-boot-starter-security-oauth2-resource-server` (JWT validation and Nimbus JWT encoding), and their `-test` starters (test scope).
+- **Dependencies (approved with this spec):** `spring-boot-starter-security`, `spring-boot-starter-security-oauth2-resource-server` (JWT validation and Nimbus JWT encoding), `org.bouncycastle:bcprov-jdk18on` (Argon2 implementation), and the `-test` starters (test scope).
 - **Stateless:** no HTTP session; CSRF protection disabled because protected endpoints use a bearer header, and the refresh cookie is `SameSite=Strict` and scoped to `/api/v1/auth`.
 - **Public endpoints:** `/api/v1/auth/**`, `/actuator/health`, `/v3/api-docs/**`, `/swagger-ui/**`, `/swagger-ui.html`. Everything else requires a valid access token.
 - **CORS** is enabled through `http.cors(...)` using the existing `CorsConfig`, now with `allowCredentials(true)`.
 - **401 / 403** from Spring Security are returned as ProblemDetail, like every other error.
 - **JWT claims:** `sub` = user id, `iss` = `expense-tracker-api`, `iat`, `exp`. Signing secret from `JWT_SECRET` (at least 32 bytes); the app refuses to start without it. The `dev` and `test` profiles supply local-only secrets.
-- **Login timing:** when the email does not exist, still run a BCrypt check against a dummy hash so response time does not reveal which emails are registered.
+- **Login timing:** when the email does not exist, still run an Argon2id check against a dummy hash so response time does not reveal which emails are registered.
 - **Current user for other modules:** a small `CurrentUser` helper exposes the authenticated user's id; services load the user (and currency) from it.
 
 ## Configuration
@@ -141,13 +141,13 @@ Unit tests for pure logic (token hashing, email normalization) where it keeps te
 
 ## Boundaries
 
-- **Always:** hash passwords (BCrypt) and refresh tokens (SHA-256); return the same error for wrong email and wrong password; keep secrets in env vars.
+- **Always:** hash passwords (Argon2id, OWASP minimum parameters) and refresh tokens (SHA-256); return the same error for wrong email and wrong password; keep secrets in env vars.
 - **Ask first:** changing token lifetimes, cookie attributes or the public endpoint list; adding OAuth/social login.
 - **Never:** log passwords, tokens or token hashes; put the refresh token in a JSON body or `localStorage`; return `password_hash` in any response.
 
 ## Success Criteria
 
-1. Register returns `201`, an access token, the user, and a refresh cookie with the attributes above; the password is stored only as a BCrypt hash.
+1. Register returns `201`, an access token, the user, and a refresh cookie with the attributes above; the password is stored only as an Argon2id hash.
 2. Registering an existing email (any letter case) returns `409`.
 3. Login with correct credentials returns `200` with tokens; wrong email and wrong password both return the same `401`.
 4. `GET /api/v1/me` returns the user with a valid token and `401` without, with an invalid, or with an expired token.
