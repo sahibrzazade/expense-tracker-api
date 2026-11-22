@@ -3,14 +3,12 @@ package com.expensetracker.identity;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.expensetracker.support.IntegrationTest;
-import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.json.JsonPathValueAssert;
 import org.springframework.test.web.servlet.assertj.MvcTestResult;
 
 class RegistrationIntegrationTest extends IntegrationTest {
@@ -42,7 +40,7 @@ class RegistrationIntegrationTest extends IntegrationTest {
     }
 
     @Test
-    void passwordIsStoredOnlyAsBcryptHash() {
+    void passwordIsStoredOnlyAsArgon2idHash() {
         String email = uniqueEmail();
         register(email, "correct-horse", "Sahib", "USD");
 
@@ -114,21 +112,8 @@ class RegistrationIntegrationTest extends IntegrationTest {
     }
 
     private MvcTestResult register(String email, String password, String name, String currency) {
-        return mvc.post()
-                .uri(REGISTER)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                        {"email": "%s", "password": "%s", "name": "%s", "currency": "%s"}
-                        """.formatted(email, password, name, currency))
-                .exchange();
-    }
-
-    private static String uniqueEmail() {
-        return "user-" + UUID.randomUUID() + "@example.com";
-    }
-
-    private static String jsonValue(MvcTestResult result, String path) {
-        JsonPathValueAssert value = assertThat(result).bodyJson().extractingPath(path);
-        return String.valueOf(value.actual());
+        return postJson(REGISTER, """
+                {"email": "%s", "password": "%s", "name": "%s", "currency": "%s"}
+                """.formatted(email, password, name, currency));
     }
 }
